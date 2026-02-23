@@ -1,0 +1,29 @@
+
+version: '3'
+
+tasks:
+  build:
+    cmds:
+        - cmd: cmake --build build
+  cmake:
+    cmds:
+        - cmd: cmake -G "Ninja" -B build
+  clean:
+    cmds:
+        - cmd: rm -r build/
+          
+  build-debug:
+    cmds:
+        - cmd: cmake --build debug
+
+  run:
+    deps: [build]
+    cmds:
+        - cmd: ./build/main {{.CLI_ARGS}}
+
+
+  debug:
+    deps: [build-debug]
+    cmds:
+        - cmd: ./debug/main {{.CLI_ARGS}}
+

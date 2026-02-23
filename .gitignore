@@ -1,0 +1,9 @@
+*
+!CMakeLists.txt
+!Taskfile.yml
+!notes.md
+!src/
+!src/**
+!include/
+!include/**
+!.gitignore
