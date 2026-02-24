@@ -1,14 +1,11 @@
 #include "headers.h"
-#include <SDL3/SDL_video.h>
-#include <cstdint>
 
 void CreateSwapchain(State *state, VkSwapchainKHR handle)
 {
     // query the capabilities
     VkSurfaceCapabilitiesKHR surface_caps;
     validate(
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-            state->context->gpu, state->context->surface.handle, &surface_caps),
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(state->context->gpu, state->context->surface.handle, &surface_caps),
         "could not get surface capabilities");
 
     int width, height;
@@ -36,29 +33,24 @@ void CreateSwapchain(State *state, VkSwapchainKHR handle)
     };
 
     // create swapchain
-    validate(vkCreateSwapchainKHR(state->context->device, &swapchain_info, NULL,
-                                  &state->swapchain->handle),
+    validate(vkCreateSwapchainKHR(state->context->device, &swapchain_info, NULL, &state->swapchain->handle),
              "could not craete swapchain");
 
     // get images
-    validate(vkGetSwapchainImagesKHR(state->context->device,
-                                     state->swapchain->handle,
-                                     &state->swapchain->image_count, NULL),
-             "could not get swapchain image count");
+    validate(
+        vkGetSwapchainImagesKHR(state->context->device, state->swapchain->handle, &state->swapchain->image_count, NULL),
+        "could not get swapchain image count");
 
     state->swapchain->images =
-        (VkImage *)ArenaPush(&state->swapchain_arena,
-                             sizeof(VkImage) * state->swapchain->image_count);
+        (VkImage *)ArenaPush(&state->swapchain_arena, sizeof(VkImage) * state->swapchain->image_count);
 
-    validate(vkGetSwapchainImagesKHR(
-                 state->context->device, state->swapchain->handle,
-                 &state->swapchain->image_count, state->swapchain->images),
+    validate(vkGetSwapchainImagesKHR(state->context->device, state->swapchain->handle, &state->swapchain->image_count,
+                                     state->swapchain->images),
              "could not get swapchain images");
 
     // create views
-    state->swapchain->views = (VkImageView *)ArenaPush(
-        &state->swapchain_arena,
-        sizeof(VkImageView) * state->swapchain->image_count);
+    state->swapchain->views =
+        (VkImageView *)ArenaPush(&state->swapchain_arena, sizeof(VkImageView) * state->swapchain->image_count);
 
     for (u32 i = 0; i < state->swapchain->image_count; i++)
     {
@@ -75,17 +67,15 @@ void CreateSwapchain(State *state, VkSwapchainKHR handle)
                 },
         };
 
-        validate(vkCreateImageView(state->context->device, &view_info, NULL,
-                                   &state->swapchain->views[i]),
+        validate(vkCreateImageView(state->context->device, &view_info, NULL, &state->swapchain->views[i]),
                  "could not create image view");
     }
 
     debug("Created swapchain");
 
     // create semaphore images
-    state->swapchain->begin_presenting_semaphore = (VkSemaphore *)ArenaPush(
-        &state->swapchain_arena,
-        sizeof(VkSemaphore) * state->swapchain->image_count);
+    state->swapchain->begin_presenting_semaphore =
+        (VkSemaphore *)ArenaPush(&state->swapchain_arena, sizeof(VkSemaphore) * state->swapchain->image_count);
 
     for (u32 i = 0; i < state->swapchain->image_count; i++)
     {
@@ -93,10 +83,9 @@ void CreateSwapchain(State *state, VkSwapchainKHR handle)
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
         };
 
-        validate(
-            vkCreateSemaphore(state->context->device, &semaphore_info, NULL,
-                              &state->swapchain->begin_presenting_semaphore[i]),
-            "could not create vk semapohre");
+        validate(vkCreateSemaphore(state->context->device, &semaphore_info, NULL,
+                                   &state->swapchain->begin_presenting_semaphore[i]),
+                 "could not create vk semapohre");
     }
 
     debug("Created render semaphores");
@@ -133,8 +122,7 @@ void CreateDepthImages(State *state)
     };
 
     // vma create image
-    validate(vmaCreateImage(state->context->allocator, &image_info, &alloc_info,
-                            &state->swapchain->depth_image,
+    validate(vmaCreateImage(state->context->allocator, &image_info, &alloc_info, &state->swapchain->depth_image,
                             &state->swapchain->depth_alloc, NULL),
              "could not create depth image");
 
@@ -152,8 +140,7 @@ void CreateDepthImages(State *state)
             },
     };
 
-    validate(vkCreateImageView(state->context->device, &view_info, NULL,
-                               &state->swapchain->depth_view),
+    validate(vkCreateImageView(state->context->device, &view_info, NULL, &state->swapchain->depth_view),
              "could not create depth image view");
 
     debug("Created depth image and views");
@@ -170,18 +157,15 @@ void CreateVulkanSwapchain(State *state, VkSwapchainKHR handle)
 
 void RecreateVulkanSwapchain(State *state)
 {
-    debug("hellooooo");
     // TODO(Nate): handle minimization at some point
     // vkDeviceWaitIdle(state->context->device);
     for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
     {
-        vkWaitForFences(state->context->device, 1,
-                        &state->context->frame_context[i].fence, VK_TRUE,
-                        UINT64_MAX);
+        vkWaitForFences(state->context->device, 1, &state->context->frame_context[i].fence, VK_TRUE, UINT64_MAX);
     }
     Swapchain old_swapchain = *state->swapchain;
-    VkImageView old_views[old_swapchain.image_count];
-    VkSemaphore old_sems[old_swapchain.image_count];
+    VkImageView old_views[10];
+    VkSemaphore old_sems[10];
     for (u32 i = 0; i < old_swapchain.image_count; i++)
     {
         old_views[i] = old_swapchain.views[i];
@@ -189,14 +173,12 @@ void RecreateVulkanSwapchain(State *state)
     }
     //  reset arena
     ArenaReset(&state->swapchain_arena);
-    state->swapchain =
-        (Swapchain *)ArenaPush(&state->swapchain_arena, sizeof(Swapchain));
+    state->swapchain = (Swapchain *)ArenaPush(&state->swapchain_arena, sizeof(Swapchain));
     // create new swapchain
     CreateVulkanSwapchain(state, old_swapchain.handle);
     //  delete shit
     vkDestroyImageView(state->context->device, old_swapchain.depth_view, NULL);
-    vmaDestroyImage(state->context->allocator, old_swapchain.depth_image,
-                    old_swapchain.depth_alloc);
+    vmaDestroyImage(state->context->allocator, old_swapchain.depth_image, old_swapchain.depth_alloc);
 
     for (u32 i = 0; i < old_swapchain.image_count; i++)
     {

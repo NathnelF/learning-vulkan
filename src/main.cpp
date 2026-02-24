@@ -26,12 +26,10 @@ int main(int argc, char **argv)
     state.permanent_arena = ArenaInit(malloc(megabytes(16)), megabytes(16));
     state.swapchain_arena = ArenaInit(malloc(megabytes(16)), megabytes(16));
     // create context
-    state.context =
-        (Context *)ArenaPush(&state.permanent_arena, sizeof(Context));
+    state.context = (Context *)ArenaPush(&state.permanent_arena, sizeof(Context));
     CreateVulkanContext(&state);
     //  load swapchain
-    state.swapchain =
-        (Swapchain *)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
+    state.swapchain = (Swapchain *)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
     CreateVulkanSwapchain(&state, state.swapchain->handle);
     // TODO(Nate): load data
     // TODO(Nate): create pipeline
@@ -51,16 +49,17 @@ int main(int argc, char **argv)
             {
                 debug("resize!");
                 state.resize_ticker = 10;
-            }
-        }
-        if (state.resize_ticker > 0)
-        {
-            state.resize_ticker--;
-            if (state.resize_ticker == 0)
-            {
                 RecreateVulkanSwapchain(&state);
             }
         }
+        // if (state.resize_ticker > 0)
+        // {
+        //     state.resize_ticker--;
+        //     if (state.resize_ticker == 0)
+        //     {
+        //         RecreateVulkanSwapchain(&state);
+        //     }
+        // }
         RenderLoop(&state, frame_index);
         frame_index = (frame_index + 1) % FRAMES_IN_FLIGHT;
     }

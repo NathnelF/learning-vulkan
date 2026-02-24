@@ -19,7 +19,7 @@ tasks:
   run:
     deps: [build]
     cmds:
-        - cmd: ./build/main {{.CLI_ARGS}}
+        - cmd: ./build/main{{if eq OS "windows"}}.exe{{end}} {{.CLI_ARGS}}
 
 
   debug:
