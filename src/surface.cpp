@@ -41,16 +41,16 @@ void CreateSwapchain(State *state, VkSwapchainKHR handle)
         vkGetSwapchainImagesKHR(state->context->device, state->swapchain->handle, &state->swapchain->image_count, NULL),
         "could not get swapchain image count");
 
-    state->swapchain->images =
-        (VkImage *)ArenaPush(&state->swapchain_arena, sizeof(VkImage) * state->swapchain->image_count);
+    // state->swapchain->images =
+    //     (VkImage *)ArenaPush(&state->swapchain_arena, sizeof(VkImage) * state->swapchain->image_count);
 
     validate(vkGetSwapchainImagesKHR(state->context->device, state->swapchain->handle, &state->swapchain->image_count,
                                      state->swapchain->images),
              "could not get swapchain images");
 
     // create views
-    state->swapchain->views =
-        (VkImageView *)ArenaPush(&state->swapchain_arena, sizeof(VkImageView) * state->swapchain->image_count);
+    // state->swapchain->views =
+    //     (VkImageView *)ArenaPush(&state->swapchain_arena, sizeof(VkImageView) * state->swapchain->image_count);
 
     for (u32 i = 0; i < state->swapchain->image_count; i++)
     {
@@ -74,8 +74,8 @@ void CreateSwapchain(State *state, VkSwapchainKHR handle)
     debug("Created swapchain");
 
     // create semaphore images
-    state->swapchain->begin_presenting_semaphore =
-        (VkSemaphore *)ArenaPush(&state->swapchain_arena, sizeof(VkSemaphore) * state->swapchain->image_count);
+    // state->swapchain->begin_presenting_semaphore =
+    //     (VkSemaphore *)ArenaPush(&state->swapchain_arena, sizeof(VkSemaphore) * state->swapchain->image_count);
 
     for (u32 i = 0; i < state->swapchain->image_count; i++)
     {
@@ -164,13 +164,13 @@ void RecreateVulkanSwapchain(State *state)
         vkWaitForFences(state->context->device, 1, &state->context->frame_context[i].fence, VK_TRUE, UINT64_MAX);
     }
     Swapchain old_swapchain = *state->swapchain;
-    VkImageView old_views[10];
-    VkSemaphore old_sems[10];
-    for (u32 i = 0; i < old_swapchain.image_count; i++)
-    {
-        old_views[i] = old_swapchain.views[i];
-        old_sems[i] = old_swapchain.begin_presenting_semaphore[i];
-    }
+    // VkImageView old_views[10];
+    // VkSemaphore old_sems[10];
+    // for (u32 i = 0; i < old_swapchain.image_count; i++)
+    // {
+    //     old_views[i] = old_swapchain.views[i];
+    //     old_sems[i] = old_swapchain.begin_presenting_semaphore[i];
+    // }
     //  reset arena
     ArenaReset(&state->swapchain_arena);
     state->swapchain = (Swapchain *)ArenaPush(&state->swapchain_arena, sizeof(Swapchain));
@@ -182,8 +182,8 @@ void RecreateVulkanSwapchain(State *state)
 
     for (u32 i = 0; i < old_swapchain.image_count; i++)
     {
-        vkDestroySemaphore(state->context->device, old_sems[i], NULL);
-        vkDestroyImageView(state->context->device, old_views[i], NULL);
+        vkDestroySemaphore(state->context->device, old_swapchain.begin_presenting_semaphore[i], NULL);
+        vkDestroyImageView(state->context->device, old_swapchain.views[i], NULL);
     }
     vkDestroySwapchainKHR(state->context->device, old_swapchain.handle, NULL);
     //  create chain

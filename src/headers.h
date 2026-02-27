@@ -47,9 +47,9 @@ struct Context
 struct Swapchain
 {
     VkSwapchainKHR handle;
-    VkImage *images;
-    VkImageView *views;
-    VkSemaphore *begin_presenting_semaphore; // tied to image count
+    VkImage images[8];
+    VkImageView views[8];
+    VkSemaphore begin_presenting_semaphore[8]; // tied to image count
     VkImage depth_image;
     VkImageView depth_view;
     VmaAllocation depth_alloc;
