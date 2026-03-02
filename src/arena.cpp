@@ -1,5 +1,6 @@
 #include "arena.h"
 #include <assert.h>
+#include <string.h>
 
 bool IsPowerOfTwo(u64 x)
 {

@@ -6,6 +6,7 @@
 #include "surface.cpp"
 //
 #include "render.cpp"
+#include "render2.cpp"
 #include <SDL3/SDL_events.h>
 //
 
@@ -62,7 +63,8 @@ int main(int argc, char** argv)
     //         RecreateVulkanSwapchain(&state);
     //     }
     // }
-    RenderLoop(&state, frame_index);
+    // RenderLoop(&state, frame_index);
+    RenderLoop2(&state, frame_index);
     frame_index = (frame_index + 1) % FRAMES_IN_FLIGHT;
   }
   return 0;
