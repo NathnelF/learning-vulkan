@@ -3,11 +3,11 @@
 #include "arena.cpp"
 
 #include "context.cpp"
+#include "pipeline.cpp"
 #include "surface.cpp"
 //
 #include "render.cpp"
 #include "render2.cpp"
-#include <SDL3/SDL_events.h>
 //
 
 int g_debug_enabled = 0;
@@ -34,6 +34,7 @@ int main(int argc, char** argv)
     (Swapchain*)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
   CreateVulkanSwapchain(&state, state.swapchain->handle);
   // TODO(Nate): load data
+  CreatePipeline(&state);
   // TODO(Nate): create pipeline
   int running = 1;
   int frame_index = 0;

@@ -107,7 +107,34 @@ void RenderLoop2(State* state, int frame_index)
 
   // begin rendering
   vkCmdBeginRendering(buffer, &rendering_info);
-  // end rendering
+
+  // bind pipeline
+  vkCmdBindPipeline(
+    buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state->context->pipeline);
+  // set viewport and scissor
+
+  VkViewport viewport = {
+    .x = 0.0f,
+    .y = 0.0f,
+    .width = (float)state->swapchain->width,
+    .height = (float)state->swapchain->height,
+    .minDepth = 0.0f,
+    .maxDepth = 1.0f,
+  };
+  vkCmdSetViewport(buffer, 0, 1, &viewport);
+
+  VkRect2D scissor = {
+     .offset = {0, 0},
+     .extent = {
+        .width = state->swapchain->width,
+        .height = state->swapchain->height,
+     },
+  };
+  vkCmdSetScissor(buffer, 0, 1, &scissor);
+
+  // draw command
+  vkCmdDraw(buffer, 3, 1, 0, 0);
+  //  end rendering
   vkCmdEndRendering(buffer);
   // transition image layout to presnet optimal
   VkImageMemoryBarrier2 present_barrier = {
@@ -139,7 +166,7 @@ void RenderLoop2(State* state, int frame_index)
 
   // submit to queue
   VkCommandBufferSubmitInfo cmd_info = {
-    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
     .commandBuffer = buffer,
   };
 

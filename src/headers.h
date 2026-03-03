@@ -42,6 +42,7 @@ struct Context
   VmaAllocator allocator;
   FrameContext frame_context[FRAMES_IN_FLIGHT];
   Surface surface;
+  VkPipeline pipeline;
 };
 
 struct Swapchain
