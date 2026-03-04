@@ -19,7 +19,7 @@
 
 struct Surface
 {
-  SDL_Window* window;
+  SDL_Window *window;
   VkSurfaceKHR handle;
   VkFormat depth_format;
 };
@@ -32,6 +32,18 @@ struct FrameContext
   VkCommandBuffer command_buffer;
 };
 
+struct Vertex
+{
+  float x, y, z;
+};
+
+struct VertexBuffer
+{
+  VkBuffer buffer;
+  VmaAllocation allocation;
+  void *cpu_pointer;
+};
+
 struct Context
 {
   VkInstance instance;
@@ -42,6 +54,7 @@ struct Context
   VmaAllocator allocator;
   FrameContext frame_context[FRAMES_IN_FLIGHT];
   Surface surface;
+  VertexBuffer vertex_buffer;
   VkPipeline pipeline;
 };
 
@@ -61,8 +74,8 @@ struct Swapchain
 
 struct State
 {
-  Context* context;
-  Swapchain* swapchain;
+  Context *context;
+  Swapchain *swapchain;
 
   int resize_ticker;
 
@@ -72,7 +85,7 @@ struct State
 };
 
 // macros
-inline const char* vk_debug_string(VkResult code)
+inline const char *vk_debug_string(VkResult code)
 {
   switch (code)
   {
@@ -132,7 +145,7 @@ inline const char* vk_debug_string(VkResult code)
 }
 
 // DEFINED RECREATE SWAPCHAIN HERE
-void RecreateVulkanSwapchain(State* state);
+void RecreateVulkanSwapchain(State *state);
 
 #define validate(error, format, ...)                                           \
   {                                                                            \

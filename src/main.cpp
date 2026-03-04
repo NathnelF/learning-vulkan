@@ -5,6 +5,7 @@
 #include "context.cpp"
 #include "pipeline.cpp"
 #include "surface.cpp"
+#include "vertex.cpp"
 //
 #include "render.cpp"
 #include "render2.cpp"
@@ -12,7 +13,7 @@
 
 int g_debug_enabled = 0;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 
   for (int i = 1; i < argc; i++)
@@ -27,15 +28,21 @@ int main(int argc, char** argv)
   state.permanent_arena = ArenaInit(malloc(megabytes(16)), megabytes(16));
   state.swapchain_arena = ArenaInit(malloc(megabytes(16)), megabytes(16));
   // create context
-  state.context = (Context*)ArenaPush(&state.permanent_arena, sizeof(Context));
+  state.context = (Context *)ArenaPush(&state.permanent_arena, sizeof(Context));
   CreateVulkanContext(&state);
   //  load swapchain
   state.swapchain =
-    (Swapchain*)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
+    (Swapchain *)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
   CreateVulkanSwapchain(&state, state.swapchain->handle);
+  Vertex vertices[] = {
+    { 0.0f, 0.5f, 0.0f },
+    { -0.5f, -0.5f, 0.0f },
+    { 0.5f, -0.5f, 0.0f },
+  };
+  int num_vertices = sizeof(vertices) / sizeof(Vertex);
+  CreateVertexBuffer(&state, vertices, num_vertices);
   // TODO(Nate): load data
   CreatePipeline(&state);
-  // TODO(Nate): create pipeline
   int running = 1;
   int frame_index = 0;
   SDL_Event event;

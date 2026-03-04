@@ -1,9 +1,9 @@
 #include "headers.h"
 
-void RenderLoop2(State* state, int frame_index)
+void RenderLoop2(State *state, int frame_index)
 {
   // We get the context for the current frame
-  FrameContext* frame = &state->context->frame_context[frame_index];
+  FrameContext *frame = &state->context->frame_context[frame_index];
   // make sure we aren't using the current frame
   validate(
     vkWaitForFences(state->context->device, 1, &frame->fence, true, UINT64_MAX),
@@ -133,6 +133,9 @@ void RenderLoop2(State* state, int frame_index)
   vkCmdSetScissor(buffer, 0, 1, &scissor);
 
   // draw command
+  VkDeviceSize offset = 0;
+  vkCmdBindVertexBuffers(
+    buffer, 0, 1, &state->context->vertex_buffer.buffer, &offset);
   vkCmdDraw(buffer, 3, 1, 0, 0);
   //  end rendering
   vkCmdEndRendering(buffer);

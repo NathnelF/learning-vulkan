@@ -1,9 +1,9 @@
 #include "headers.h"
 
-VkShaderModule load_shader(State* state, const char* path)
+VkShaderModule load_shader(State *state, const char *path)
 {
 
-  FILE* file = fopen(path, "rb");
+  FILE *file = fopen(path, "rb");
   if (file == NULL)
   {
     err("failed to read file %s", path);
@@ -13,7 +13,7 @@ VkShaderModule load_shader(State* state, const char* path)
   size_t file_size = ftell(file);
   rewind(file);
 
-  char* buffer = (char*)malloc(file_size);
+  char *buffer = (char *)malloc(file_size);
   if (buffer == NULL)
   {
     err("malloc failed in file read");
@@ -29,7 +29,7 @@ VkShaderModule load_shader(State* state, const char* path)
   VkShaderModuleCreateInfo shader_create_info = {
     .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
     .codeSize = file_size,
-    .pCode = (u32*)buffer,
+    .pCode = (u32 *)buffer,
   };
 
   VkShaderModule shader_module;
@@ -42,7 +42,7 @@ VkShaderModule load_shader(State* state, const char* path)
   return shader_module;
 }
 
-void CreatePipeline(State* state)
+void CreatePipeline(State *state)
 {
 
   VkShaderModule vert_shader = load_shader(state, "src/vert.spv");
@@ -77,12 +77,25 @@ void CreatePipeline(State* state)
     },
   };
 
+  VkVertexInputBindingDescription binding = {
+    .binding = 0,
+    .stride = sizeof(Vertex),
+    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+  };
+
+  VkVertexInputAttributeDescription attribute = {
+    .location = 0,
+    .binding = 0,
+    .format = VK_FORMAT_R32G32B32_SFLOAT,
+    .offset = 0,
+  };
+
   VkPipelineVertexInputStateCreateInfo vertex_input_info = {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-    .vertexBindingDescriptionCount = 0,
-    .pVertexBindingDescriptions = NULL,
-    .vertexAttributeDescriptionCount = 0,
-    .pVertexAttributeDescriptions = NULL,
+    .vertexBindingDescriptionCount = 1,
+    .pVertexBindingDescriptions = &binding,
+    .vertexAttributeDescriptionCount = 1,
+    .pVertexAttributeDescriptions = &attribute,
   };
 
   VkPipelineInputAssemblyStateCreateInfo input_assembly_info = {
