@@ -34,15 +34,16 @@ int main(int argc, char **argv)
   state.swapchain =
     (Swapchain *)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
   CreateVulkanSwapchain(&state, state.swapchain->handle);
+  // Create Vertex Buffer
   Vertex vertices[] = {
-    { 0.0f, 0.5f, 0.0f },
-    { -0.5f, -0.5f, 0.0f },
-    { 0.5f, -0.5f, 0.0f },
+    { 0.5f, 0.5f, 0.0f },
+    { -0.5f, 0.5f, 0.0f },
+    { 0.0f, -0.5f, 0.0f },
   };
-  int num_vertices = sizeof(vertices) / sizeof(Vertex);
+  int num_vertices = sizeof(vertices) / sizeof(vertices[0]);
   CreateVertexBuffer(&state, vertices, num_vertices);
-  // TODO(Nate): load data
   CreatePipeline(&state);
+  // TODO(Nate): do something
   int running = 1;
   int frame_index = 0;
   SDL_Event event;
@@ -71,8 +72,8 @@ int main(int argc, char **argv)
     //         RecreateVulkanSwapchain(&state);
     //     }
     // }
-    // RenderLoop(&state, frame_index);
-    RenderLoop2(&state, frame_index);
+    RenderLoop(&state, frame_index);
+    // RenderLoop2(&state, frame_index);
     frame_index = (frame_index + 1) % FRAMES_IN_FLIGHT;
   }
   return 0;

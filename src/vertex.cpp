@@ -2,7 +2,7 @@
 
 void CreateVertexBuffer(State *state, Vertex *vertices, int num_vertices)
 {
-  VkBufferCreateInfo buffer_info = {
+  VkBufferCreateInfo vertex_buffer_info = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
     .size = sizeof(Vertex) * num_vertices,
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
@@ -14,7 +14,7 @@ void CreateVertexBuffer(State *state, Vertex *vertices, int num_vertices)
   };
 
   validate(vmaCreateBuffer(state->context->allocator,
-                           &buffer_info,
+                           &vertex_buffer_info,
                            &alloc_info,
                            &state->context->vertex_buffer.buffer,
                            &state->context->vertex_buffer.allocation,
@@ -24,9 +24,11 @@ void CreateVertexBuffer(State *state, Vertex *vertices, int num_vertices)
   validate(vmaMapMemory(state->context->allocator,
                         state->context->vertex_buffer.allocation,
                         &state->context->vertex_buffer.cpu_pointer),
-           "could not map gpu memory to cpu pointer");
+           "could not map memory to cpu pointer");
 
   memcpy(state->context->vertex_buffer.cpu_pointer,
          vertices,
          sizeof(Vertex) * num_vertices);
+
+  debug("created vertex buffer!");
 }
