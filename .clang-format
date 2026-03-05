@@ -1,0 +1,5 @@
+BasedOnStyle: Mozilla
+BreakBeforeBraces: Allman
+BreakAfterReturnType: Automatic
+PointerAlignment: Right
+Language: Cpp
