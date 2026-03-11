@@ -24,13 +24,14 @@ add_executable(
   main
   src/main.cpp
   src/vma.cpp
+  src/cgltf.cpp
 )
 
 if (WIN32)
   target_compile_definitions(main PRIVATE
         "__FILE_NAME__=__FILE__"
     )
-endif()  
+endif()
 
 target_include_directories(main PRIVATE include)
 
@@ -43,4 +44,3 @@ if(WIN32)
             "$<TARGET_FILE_DIR:main>"
     )
 endif()
-
