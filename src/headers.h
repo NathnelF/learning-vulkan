@@ -1,7 +1,9 @@
 #pragma once
 
 #define VK_NO_PROTOTYPES
+#include "HandmadeMath.h"
 #include "arena.h"
+#include "cgltf.h"
 #include "types.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -35,6 +37,28 @@ struct FrameContext
 struct Vertex
 {
   float x, y, z;
+  float nx, ny, nz;
+  float u, v;
+};
+
+struct MeshRegion
+{
+  u32 vertex_offset;
+  u32 index_offset;
+  u32 vertex_count;
+  u32 index_count;
+};
+
+#define MAX_MESHES 16
+
+struct MegaBuffer
+{
+  VkBuffer buffer;
+  VmaAllocation allocation;
+  MeshRegion regions[MAX_MESHES];
+  u64 vertex_region_offset;
+  u64 index_region_offset;
+  u32 mesh_count;
 };
 
 struct VertexBuffer
@@ -56,6 +80,7 @@ struct Context
   Surface surface;
   VertexBuffer vertex_buffer;
   VkPipeline pipeline;
+  VkPipelineLayout pipeline_layout;
 };
 
 struct Swapchain
@@ -76,6 +101,8 @@ struct State
 {
   Context *context;
   Swapchain *swapchain;
+
+  MegaBuffer mega_buffer;
 
   int resize_ticker;
 

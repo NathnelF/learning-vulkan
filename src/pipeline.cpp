@@ -48,12 +48,19 @@ void CreatePipeline(State *state)
   // pipeline layout
   // this describes how the pipeline interacts with descriptors and push
   // constants right now we don't have either so it just is blank.
+  //
+  VkPushConstantRange push_constants_info = {
+    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+    .offset = 0,
+    .size = sizeof(HMM_Mat4),
+  };
+
   VkPipelineLayoutCreateInfo pipeline_layout_info = {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
     .setLayoutCount = 0,
     .pSetLayouts = NULL,
-    .pushConstantRangeCount = 0,
-    .pPushConstantRanges = NULL,
+    .pushConstantRangeCount = 1,
+    .pPushConstantRanges = &push_constants_info,
   };
 
   VkPipelineLayout pipeline_layout;
@@ -61,6 +68,8 @@ void CreatePipeline(State *state)
     vkCreatePipelineLayout(
       state->context->device, &pipeline_layout_info, NULL, &pipeline_layout),
     "could not create pipeline layout");
+
+  state->context->pipeline_layout = pipeline_layout;
 
   debug("created pipeline layout");
   // shader stages
@@ -91,7 +100,19 @@ void CreatePipeline(State *state)
       .location = 0,
       .binding = 0,
       .format = VK_FORMAT_R32G32B32_SFLOAT,
-      .offset = 0,
+      .offset = offsetof(Vertex, x),
+    },
+    {
+      .location = 1,
+      .binding = 0,
+      .format = VK_FORMAT_R32G32B32_SFLOAT,
+      .offset = offsetof(Vertex, nx),
+    },
+    {
+      .location = 2,
+      .binding = 0,
+      .format = VK_FORMAT_R32G32B32_SFLOAT,
+      .offset = offsetof(Vertex, u),
     },
   };
 
@@ -99,7 +120,7 @@ void CreatePipeline(State *state)
     .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
     .vertexBindingDescriptionCount = 1,
     .pVertexBindingDescriptions = &input_binding,
-    .vertexAttributeDescriptionCount = 1,
+    .vertexAttributeDescriptionCount = 3,
     .pVertexAttributeDescriptions = input_attributes,
   };
   debug("pipeline vertex input assembly");
@@ -150,6 +171,15 @@ void CreatePipeline(State *state)
     .attachmentCount = 1,
     .pAttachments = &color_blend_attachment,
   };
+
+  // depth stencil
+  VkPipelineDepthStencilStateCreateInfo depth_stencil_info = {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+    .depthTestEnable = true,
+    .depthWriteEnable = true,
+    .depthCompareOp = VK_COMPARE_OP_LESS,
+  };
+
   //  dynamic state (viewport / scissor
   VkDynamicState dynamic_states[] = {
     VK_DYNAMIC_STATE_VIEWPORT,
@@ -168,6 +198,7 @@ void CreatePipeline(State *state)
     .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
     .colorAttachmentCount = 1,
     .pColorAttachmentFormats = &format,
+    .depthAttachmentFormat = state->context->surface.depth_format,
   };
 
   //  pipeline create info
@@ -181,6 +212,7 @@ void CreatePipeline(State *state)
     .pViewportState = &viewport_scissor_info,
     .pRasterizationState = &rasterization_info,
     .pMultisampleState = &multisample_info,
+    .pDepthStencilState = &depth_stencil_info,
     .pColorBlendState = &color_blend_info,
     .pDynamicState = &dynamic_state_info,
     .layout = pipeline_layout,

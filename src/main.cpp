@@ -3,9 +3,9 @@
 #include "arena.cpp"
 
 #include "context.cpp"
+#include "mesh.cpp"
 #include "pipeline.cpp"
 #include "surface.cpp"
-#include "vertex.cpp"
 //
 #include "render.cpp"
 #include "render2.cpp"
@@ -34,16 +34,16 @@ int main(int argc, char **argv)
   state.swapchain =
     (Swapchain *)ArenaPush(&state.swapchain_arena, sizeof(Swapchain));
   CreateVulkanSwapchain(&state, state.swapchain->handle);
-  // Create Vertex Buffer
-  Vertex vertices[] = {
-    { 0.5f, 0.5f, 0.0f },
-    { -0.5f, 0.5f, 0.0f },
-    { 0.0f, -0.5f, 0.0f },
+  // load meshes upfront
+  const char *mesh_paths[] = {
+    "assets/Cube.glb",
+    "assets/Cone.glb",
+    "assets/Cylinder.glb",
+    "assets/Sphere.glb",
   };
-  int num_vertices = sizeof(vertices) / sizeof(vertices[0]);
-  CreateVertexBuffer(&state, vertices, num_vertices);
+  int num_paths = sizeof(mesh_paths) / sizeof(mesh_paths[0]);
+  CreateMegaBuffer(&state, mesh_paths, num_paths);
   CreatePipeline(&state);
-  // TODO(Nate): do something
   int running = 1;
   int frame_index = 0;
   SDL_Event event;
