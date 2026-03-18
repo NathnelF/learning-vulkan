@@ -9,8 +9,6 @@
 #include <SDL3/SDL_vulkan.h>
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 //
 #include <volk.h>
 //
@@ -41,6 +39,22 @@ struct Vertex
   float u, v;
 };
 
+struct PushConstants
+{
+  HMM_Mat4 view_projection;
+  u64 instance_buffer_address;
+};
+
+enum MeshType
+{
+  //must match the exact order we load meshes in main.
+  CUBE,
+  CONE,
+  CYLINDER,
+  SPHERE,
+  SKULL,
+};
+
 struct MeshRegion
 {
   u32 vertex_offset;
@@ -59,6 +73,28 @@ struct MegaBuffer
   u64 vertex_region_offset;
   u64 index_region_offset;
   u32 mesh_count;
+};
+
+struct InstanceData
+{
+  HMM_Mat4 transform;
+};
+
+#define MAX_INSTANCES 256
+
+struct Scene
+{
+  VkBuffer instance_buffer;
+  VmaAllocation instance_allocation;
+  InstanceData *instance_pointer;
+  VkDeviceAddress instance_buffer_address;
+  // InstanceData instances[MAX_INSTANCES]; this is goes in the buffer
+  VkBuffer indirect_buffer;
+  VmaAllocation indirect_allocation;
+  VkDrawIndexedIndirectCommand *indirect_pointer;
+  // VkDrawIndexedIndirectCommand[MAX_MESHES]
+  int draw_count;
+
 };
 
 struct VertexBuffer
@@ -103,6 +139,8 @@ struct State
   Swapchain *swapchain;
 
   MegaBuffer mega_buffer;
+  Scene scene;
+  //TODO(Nate): give scene it's own arena
 
   int resize_ticker;
 

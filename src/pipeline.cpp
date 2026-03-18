@@ -52,7 +52,7 @@ void CreatePipeline(State *state)
   VkPushConstantRange push_constants_info = {
     .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
     .offset = 0,
-    .size = sizeof(HMM_Mat4),
+    .size = sizeof(PushConstants),
   };
 
   VkPipelineLayoutCreateInfo pipeline_layout_info = {

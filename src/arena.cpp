@@ -20,7 +20,7 @@ u64 ForwardAlign(u64 ptr, u64 alignment)
 
   return ptr;
 }
-
+ 
 Arena ArenaInit(void* backing, u64 backing_size)
 {
   Arena arena = {
@@ -33,8 +33,8 @@ Arena ArenaInit(void* backing, u64 backing_size)
 
 void* ArenaPushAlign(Arena* arena, u64 push_size, u64 alignment)
 {
-  u64 current_address = (u64)arena->memory + arena->offset;
 
+  u64 current_address = (u64)arena->memory + arena->offset;
   u64 offset = ForwardAlign(current_address, alignment);
 
   offset -= (u64)arena->memory;

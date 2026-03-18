@@ -2,6 +2,7 @@
 
 void RenderLoop(State *state, int frame_index)
 {
+  debug("in render loop");
   // first we get our frame context
   FrameContext *frame = &state->context->frame_context[frame_index];
   // wait on the fence
@@ -24,7 +25,7 @@ void RenderLoop(State *state, int frame_index)
                           state->swapchain->handle,
                           UINT64_MAX,
                           frame->begin_rendering_semaphore,
-                          VK_NULL_HANDLE,
+                          VK_NULL_HANDLE, 
                           &image_index);
   if (swapchain_result == VK_ERROR_OUT_OF_DATE_KHR ||
       swapchain_result == VK_SUBOPTIMAL_KHR)
@@ -136,41 +137,46 @@ void RenderLoop(State *state, int frame_index)
   vkCmdSetScissor(buffer, 0, 1, &scissor);
   // bind buffers
   // TODO(Nate): need to actually load 3D data to render to now.
-  MeshRegion *cube_mesh = &state->mega_buffer.regions[0];
+  // MeshRegion *cube_mesh = &state->mega_buffer.regions[0];
 
-  VkDeviceSize vertex_offset = state->mega_buffer.vertex_region_offset +
-                               cube_mesh->vertex_offset * sizeof(Vertex);
+  VkDeviceSize vertex_offset = state->mega_buffer.vertex_region_offset;
+  VkDeviceSize index_offset = state->mega_buffer.index_region_offset;
 
   vkCmdBindVertexBuffers(
     buffer, 0, 1, &state->mega_buffer.buffer, &vertex_offset);
-
-  VkDeviceSize index_offset = state->mega_buffer.index_region_offset +
-                              cube_mesh->index_offset * sizeof(u32);
 
   vkCmdBindIndexBuffer(
     buffer, state->mega_buffer.buffer, index_offset, VK_INDEX_TYPE_UINT32);
 
   // push constants for camera
   HMM_Mat4 view =
-    HMM_LookAt_RH(HMM_V3(5, 5, -8), HMM_V3(0, 0, 0), HMM_V3(0, 1, 0));
+    HMM_LookAt_RH(HMM_V3(5, 5, -20), HMM_V3(5, 0, 0), HMM_V3(0, 1, 0));
   HMM_Mat4 projection = HMM_Perspective_RH_ZO(HMM_AngleDeg(60.0f),
                                               (float)state->swapchain->width /
                                                 (float)state->swapchain->height,
                                               0.1f,
                                               100.0f);
-  float time = SDL_GetTicks() / 1000.0f;
-  float angle = time * 1.6f;
-  HMM_Mat4 rotate = HMM_Rotate_RH(HMM_AngleRad(angle), HMM_V3(0, 1, 0));
-  HMM_Mat4 model = HMM_MulM4(HMM_Translate(HMM_V3(0, 0, 0)), rotate);
-  HMM_Mat4 mvp = HMM_MulM4(HMM_MulM4(projection, view), model);
+  PushConstants push_constants = {
+    .view_projection = HMM_MulM4(projection, view),
+    .instance_buffer_address = state->scene.instance_buffer_address,
+  };
+
   vkCmdPushConstants(buffer,
                      state->context->pipeline_layout,
                      VK_SHADER_STAGE_VERTEX_BIT,
                      0,
-                     sizeof(HMM_Mat4),
-                     &mvp);
-  vkCmdDrawIndexed(buffer, cube_mesh->index_count, 1, 0, 0, 0);
+                     sizeof(PushConstants),
+                     &push_constants);
+
+
+  vkCmdDrawIndexedIndirect(buffer,
+                           state->scene.indirect_buffer,
+                           0,
+                           state->scene.draw_count,
+                           sizeof(VkDrawIndexedIndirectCommand));
   vkCmdEndRendering(buffer);
+
+  
   // end rendering
   //
   VkImageMemoryBarrier2 present_barrier = {
@@ -252,4 +258,6 @@ void RenderLoop(State *state, int frame_index)
   }
 
   validate(present_result, "could not present image to the swapchain");
+  debug("finished render loop");
+
 }
